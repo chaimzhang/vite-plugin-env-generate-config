@@ -1,0 +1,49 @@
+{
+  "name": "vite-plugin-env-generate-config",
+  "version": "1.0.1",
+  "description": "This plugin is used to extract environment variables from `.env` and `.env.[mode]` into a packaged config.js during Vite\nbuild, to support dynamically modifying and loading environment variables at runtime.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "keywords": [
+    "vite",
+    "plugin",
+    "config",
+    "env",
+    "environment"
+  ],
+  "author": {
+    "name": "chaimzhang",
+    "url": "https://github.com/chaimzhang",
+    "email": "zhang.qm@qq.com"
+  },
+  "homepage": "https://github.com/chaimzhang/vite-plugin-env-generate-config",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:chaimzhang/vite-plugin-env-generate-config.git"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.5",
+    "tsup": "^8.3.6",
+    "typescript": "^5.4.0",
+    "vite": "^6.1.0"
+  }
+}
