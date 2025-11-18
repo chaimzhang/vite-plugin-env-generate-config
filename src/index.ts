@@ -5,21 +5,23 @@ import { name } from '../package.json'
 import { loadViteConfig } from './helper'
 import { assignOptions, VitePluginEnvGenerateConfigOptions } from './VitePluginEnvGenerateConfigOptions'
 
+const CUSTOM_PATH = `vite_env_config`
+const FULL_PATH = `window.${CUSTOM_PATH}`
 
 export default function GenerateConfigPlugin(options?: VitePluginEnvGenerateConfigOptions): Plugin {
 	let mode: string
-	const { outputName } = assignOptions(options)
+	const { outputName } = options = assignOptions(options)
 	return {
 		name,
 		apply: 'build',
 		configResolved(config) {
 			mode = config.mode
 		},
-		writeBundle(options) {
-			const viteEnvConfig = loadViteConfig(mode)
-
-			const configJsContent = `window.vite_env_config = ${JSON.stringify(viteEnvConfig, null, 2)};`
-			const outputPath = path.resolve(options.dir as string, `${outputName}.js`)
+		writeBundle(normalizedOutputOptions) {
+			const viteEnvConfig = loadViteConfig(mode, options)
+			console.log('viteEnvConfig:', JSON.stringify(viteEnvConfig, null, 2))
+			const configJsContent = `${FULL_PATH}=${JSON.stringify(viteEnvConfig)};Object.freeze(${FULL_PATH});Object.defineProperty(window, ${CUSTOM_PATH},{configurable: false, writable: false,});`
+			const outputPath = path.resolve(normalizedOutputOptions.dir as string, `${outputName}.js`)
 
 			fs.mkdirSync(path.dirname(outputPath), { recursive: true })
 			fs.writeFileSync(outputPath, configJsContent)
@@ -32,10 +34,10 @@ export default function GenerateConfigPlugin(options?: VitePluginEnvGenerateConf
 		},
 		transform(code, id) {
 			if (/\.(js|ts|jsx|tsx|vue|svelte)$/.test(id)) {
-				const viteEnvConfig = loadViteConfig(mode)
+				const viteEnvConfig = loadViteConfig(mode, options)
 
 				for (const [key, value] of Object.entries(viteEnvConfig)) {
-					code = code.replace(new RegExp(`import\\.meta\\.env\\.${key}`, 'g'), `window.vite_env_config.${key}`)
+					code = code.replace(new RegExp(`import\\.meta\\.env\\.${key}`, 'g'), `${FULL_PATH}.${key}`)
 				}
 			}
 			return code
