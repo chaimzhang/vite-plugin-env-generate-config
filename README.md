@@ -6,6 +6,7 @@
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/vite-plugin-env-generate-config)](https://www.npmjs.com/package/vite-plugin-env-generate-config)
 
 English | [简体中文](README.zh_CN.md)
+
 ## Introduction
 
 This plugin extracts environment variables from `env` and `env.[mode]` (defaulting to only variables starting with
@@ -29,4 +30,9 @@ export default defineConfig({
     envGenerateConfig()
   ]
 })
+```
+
+```typoescript
+// must be use 'import.meta.env'
+const title = import.meta.env.VITE_TITLE
 ```

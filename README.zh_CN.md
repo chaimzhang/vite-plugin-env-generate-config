@@ -31,3 +31,9 @@ export default defineConfig({
   ]
 })
 ```
+
+使用变量：
+```typoescript
+// 必须都以 import.meta.env 的方式导入
+const title = import.meta.env.VITE_TITLE
+```
