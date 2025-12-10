@@ -11,15 +11,16 @@ const FULL_PATH = `window.${CUSTOM_PATH}`
 export default function GenerateConfigPlugin(options?: VitePluginEnvGenerateConfigOptions): Plugin {
 	let mode: string
 	const { outputName } = options = assignOptions(options)
+	let base = ''
 	return {
 		name,
 		apply: 'build',
 		configResolved(config) {
 			mode = config.mode
+			base = config.base || ''
 		},
 		writeBundle(normalizedOutputOptions) {
 			const viteEnvConfig = loadViteConfig(mode, options)
-			console.log('viteEnvConfig:', JSON.stringify(viteEnvConfig, null, 2))
 			const configJsContent = `${FULL_PATH}=${JSON.stringify(viteEnvConfig)};Object.freeze(${FULL_PATH});Object.defineProperty(window, ${CUSTOM_PATH},{configurable: false, writable: false,});`
 			const outputPath = path.resolve(normalizedOutputOptions.dir as string, `${outputName}.js`)
 
@@ -27,8 +28,8 @@ export default function GenerateConfigPlugin(options?: VitePluginEnvGenerateConf
 			fs.writeFileSync(outputPath, configJsContent)
 		},
 		transformIndexHtml(html) {
-			if (!html.includes(`<script src="/${outputName}.js"></script>`)) {
-				return html.replace('</head>', `  <script src="/${outputName}.js"></script>\n</head>`)
+			if (!html.includes(`<script src="${base}/${outputName}.js"></script>`)) {
+				return html.replace('</head>', `  <script src="${base}/${outputName}.js"></script>\n</head>`)
 			}
 			return html
 		},
