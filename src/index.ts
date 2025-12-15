@@ -23,20 +23,21 @@ export default function GenerateConfigPlugin(options?: VitePluginEnvGenerateConf
 			const viteEnvConfig = loadViteConfig(mode, options)
 			const configJsContent = `${FULL_PATH}=${JSON.stringify(viteEnvConfig)};Object.freeze(${FULL_PATH});Object.defineProperty(window, ${CUSTOM_PATH},{configurable: false, writable: false,});`
 			const outputPath = path.resolve(normalizedOutputOptions.dir as string, `${outputName}.js`)
-
+			
 			fs.mkdirSync(path.dirname(outputPath), { recursive: true })
 			fs.writeFileSync(outputPath, configJsContent)
 		},
 		transformIndexHtml(html) {
-			if (!html.includes(`<script src="${base}/${outputName}.js"></script>`)) {
-				return html.replace('</head>', `  <script src="${base}/${outputName}.js"></script>\n</head>`)
+			const scriptHtml = `<script src="${base}/${outputName}.js"></script>`.replace(/\/+/g, '/')
+			if (!html.includes(scriptHtml)) {
+				return html.replace('</head>', `${scriptHtml}\n</head>`)
 			}
 			return html
 		},
 		transform(code, id) {
 			if (/\.(js|ts|jsx|tsx|vue|svelte)$/.test(id)) {
 				const viteEnvConfig = loadViteConfig(mode, options)
-
+				
 				for (const [key, value] of Object.entries(viteEnvConfig)) {
 					code = code.replace(new RegExp(`import\\.meta\\.env\\.${key}`, 'g'), `${FULL_PATH}.${key}`)
 				}
